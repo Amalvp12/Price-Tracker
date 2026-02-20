@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Products</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .navbar {
+            background-color: #4CAF50;
+            padding: 15px 30px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar h1 { margin: 0; font-size: 20px; }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            background: rgba(0,0,0,0.2);
+            padding: 8px 15px;
+            border-radius: 5px;
+        }
+        .container { padding: 30px; }
+
+        /* SEARCH BAR */
+        .search-box {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .search-box h2 { margin-top: 0; color: #333; }
+        .search-row {
+            display: flex;
+            gap: 10px;
+        }
+        .search-row input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+        }
+        .btn-search {
+            padding: 12px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .btn-voice {
+            padding: 12px 20px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* RESULTS */
+        .results-title {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .product-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid #ddd;
+        }
+        .product-card.cheapest {
+            border-left: 5px solid #4CAF50;
+            background: #f8fff8;
+        }
+        .product-card.online {
+            border-left: 5px solid #2196F3;
+        }
+        .product-name { font-size: 18px; font-weight: bold; color: #333; }
+        .product-store { color: #666; margin: 5px 0; }
+        .product-desc { color: #999; font-size: 13px; }
+        .product-price {
+            font-size: 28px;
+            font-weight: bold;
+            color: #4CAF50;
+            text-align: right;
+        }
+        .product-price span {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            font-weight: normal;
+        }
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        .offline  { background: #d4edda; color: #155724; }
+        .online   { background: #cce5ff; color: #004085; }
+        .cheapest-badge {
+            background: #4CAF50;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .no-results {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            color: #999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .voice-status {
+            margin-top: 10px;
+            color: #2196F3;
+            font-size: 14px;
+            display: none;
+        }
+        .suggestions {
+            margin-top: 15px;
+        }
+        .suggestions span {
+            display: inline-block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 6px 14px;
+            border-radius: 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <h1>🏪 Price Tracker</h1>
+        <div>
+            <span style="margin-right:15px">👤 {{ user_name }}</span>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- SEARCH BOX -->
+        <div class="search-box">
+            <h2>🔍 Search & Compare Prices</h2>
+            <form method="POST" action="/user/search" id="searchForm">
+                <div class="search-row">
+                    <input type="text"
+                           name="query"
+                           id="searchInput"
+                           placeholder="Search for any product... (eg: iPhone 17, Samsung TV)"
+                           value="{{ query or '' }}"
+                           required>
+                    <button type="button" class="btn-voice" onclick="startVoice()" title="Search by Voice">🎤</button>
+                    <button type="submit" class="btn-search">Search</button>
+                </div>
+            </form>
+            <p class="voice-status" id="voiceStatus">🎤 Listening... speak now!</p>
+
+            <!-- QUICK SEARCH SUGGESTIONS -->
+            <div class="suggestions">
+                <strong>Quick search:</strong>
+                <span onclick="quickSearch('iPhone 17')">iPhone 17</span>
+                <span onclick="quickSearch('Samsung TV')">Samsung TV</span>
+                <span onclick="quickSearch('Nike Shoes')">Nike Shoes</span>
+                <span onclick="quickSearch('Electronics')">Electronics</span>
+            </div>
+        </div>
+
+        <!-- SEARCH RESULTS -->
+        {% if results is not none %}
+            {% if results %}
+                <h3 class="results-title">
+                    Found {{ results|length }} results for "{{ query }}"
+                </h3>
+
+                {% set min_price = results|map(attribute='price')|min %}
+
+                {% for product in results %}
+                <div class="product-card {{ 'cheapest' if product['price'] == min_price else product['store_type'] }}">
+                    <div>
+                        <div class="product-name">
+                            {{ product['name'] }}
+                            {% if product['price'] == min_price %}
+                            <span class="cheapest-badge">🏆 Cheapest!</span>
+                            {% endif %}
+                        </div>
+                        <div class="product-store">
+                            {% if product['store_type'] == 'offline' %}
+                                🏪 {{ product['store_name'] }}
+                            {% else %}
+                                🌐 {{ product['store_name'] }}
+                            {% endif %}
+                        </div>
+                        <div class="product-desc">{{ product['description'] or '' }}</div>
+                        <span class="badge {{ product['store_type'] }}">
+                            {{ product['store_type'] }}
+                        </span>
+                    </div>
+                    <div class="product-price">
+                        ₹{{ "{:,.0f}".format(product['price']) }}
+                        {% if product['store_type'] == 'online' %}
+                            <span>🚚 {{ product['delivery_days'] }} day delivery</span>
+                        {% else %}
+                            <span>📍 Pickup from shop</span>
+                        {% endif %}
+                        {% if product['stock_status'] == 'out_of_stock' %}
+                            <span style="color:red">❌ Out of Stock</span>
+                        {% else %}
+                            <span style="color:green">✅ Available</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+
+            {% else %}
+                <div class="no-results">
+                    <h3>😕 No results found for "{{ query }}"</h3>
+                    <p>Try searching with different words</p>
+                </div>
+            {% endif %}
+        {% endif %}
+
+    </div>
+
+    <!-- VOICEBOT JAVASCRIPT -->
+    <script>
+        function startVoice() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('Voice search only works in Chrome browser!');
+                return;
+            }
+
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'en-IN';
+            recognition.start();
+
+            document.getElementById('voiceStatus').style.display = 'block';
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('searchInput').value = transcript;
+                document.getElementById('voiceStatus').style.display = 'none';
+                document.getElementById('searchForm').submit();
+            };
+
+            recognition.onerror = function() {
+                document.getElementById('voiceStatus').style.display = 'none';
+                alert('Could not hear you. Please try again!');
+            };
+
+            recognition.onend = function() {
+                document.getElementById('voiceStatus').style.display = 'none';
+            };
+        }
+
+        function quickSearch(term) {
+            document.getElementById('searchInput').value = term;
+            document.getElementById('searchForm').submit();
+        }
+    </script>
+
+</body>
+</html>

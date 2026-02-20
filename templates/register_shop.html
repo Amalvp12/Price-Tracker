@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shop Register</title>
+    <style>
+        body {
+            font-family: Arial;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            width: 350px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h2 { color: #333; text-align: center; }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .links {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        a { color: #2196F3; }
+        .note {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 13px;
+            color: #856404;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>🏪 Register Your Shop</h2>
+
+        <div class="note">
+            ⚠️ After registering, wait for admin approval before you can login.
+        </div>
+
+        <form method="POST">
+            <input type="text" name="shop_name" placeholder="Shop Name (eg: Raja Electronics)" required>
+            <input type="text" name="owner_name" placeholder="Your Full Name" required>
+            <input type="email" name="email" placeholder="Your Email" required>
+            <input type="password" name="password" placeholder="Create Password" required>
+            <input type="text" name="phone" placeholder="Phone Number" required>
+            <input type="text" name="address" placeholder="Shop Address" required>
+            <select name="category" required>
+                <option value="">Select Category</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Clothing">Clothing</option>
+                <option value="Food">Food</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Sports">Sports</option>
+                <option value="Other">Other</option>
+            </select>
+            <button class="btn" type="submit">Register Shop</button>
+        </form>
+
+        <div class="links">
+            <p>Already registered? <a href="/login/shop">Login here</a></p>
+            <p><a href="/">← Back to Home</a></p>
+        </div>
+    </div>
+</body>
+</html>

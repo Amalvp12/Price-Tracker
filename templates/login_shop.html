@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shop Login</title>
+    <style>
+        body {
+            font-family: Arial;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            width: 350px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h2 { color: #333; text-align: center; }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .links {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        a { color: #2196F3; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>🏪 Shop Owner Login</h2>
+
+        <form method="POST">
+            <input type="email" name="email" placeholder="Your Email" required>
+            <input type="password" name="password" placeholder="Your Password" required>
+            <button class="btn" type="submit">Login</button>
+        </form>
+
+        <div class="links">
+            <p>No account? <a href="/register/shop">Register your shop</a></p>
+            <p><a href="/">← Back to Home</a></p>
+        </div>
+    </div>
+</body>
+</html>
